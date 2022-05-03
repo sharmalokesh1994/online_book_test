@@ -1,7 +1,10 @@
 package com.rig.book.filters;
 
 import com.rig.book.utils.JwtUtil;
+import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -17,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class CustomJwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -25,20 +29,27 @@ public class CustomJwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String jwtToken = extractJwtFromRequest(request);
-        if (StringUtils.hasText(jwtToken) && jwtTokenUtil.validateToken(jwtToken)) {
+        try {
+            String jwtToken = extractJwtFromRequest(request);
+            if (StringUtils.hasText(jwtToken) && jwtTokenUtil.validateToken(jwtToken)) {
 
-            UserDetails userDetails = new User(jwtTokenUtil.getUsernameFromToken(jwtToken), "",
-                    jwtTokenUtil.getRolesFromToken(jwtToken));
+                UserDetails userDetails = new User(jwtTokenUtil.getUsernameFromToken(jwtToken), "",
+                        jwtTokenUtil.getRolesFromToken(jwtToken));
 
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-        } else {
-            System.out.println("Cannot set the Security Context");
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            } else {
+               log.error("Cannot set the Security Context");
+            }
+        } catch (ExpiredJwtException ex) {
+            request.setAttribute("exception", ex);
+            throw ex;
+        } catch (BadCredentialsException ex) {
+            request.setAttribute("exception", ex);
+            throw ex;
         }
-
         chain.doFilter(request, response);
     }
 

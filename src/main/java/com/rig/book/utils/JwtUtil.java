@@ -53,13 +53,13 @@ public class JwtUtil {
     public boolean validateToken(String authToken) {
         try {
             // Jwt token has not been tampered with
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(authToken);
-            return true;
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(authToken);
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
             throw new BadCredentialsException("INVALID_CREDENTIALS", ex);
         } catch (ExpiredJwtException ex) {
             throw ex;
         }
+        return true;
     }
 
     /**
