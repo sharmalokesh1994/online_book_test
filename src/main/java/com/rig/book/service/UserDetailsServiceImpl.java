@@ -42,7 +42,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public void save(UserModel userModel) {
         UserEntity user = userRepository.findByUsername(userModel.getUsername());
         if (Objects.nonNull(user)) {
-            throw new BadRequestException("username already exists");
+            throw new BadRequestException("Email is already exists");
         }
         userRepository.save(UserEntity.builder().username(userModel.getUsername())
                 .password(bcryptEncoder.encode(userModel.getPassword()))
