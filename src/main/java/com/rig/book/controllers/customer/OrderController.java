@@ -36,7 +36,7 @@ public class OrderController {
         return new ResponseEntity<>(orderService.getOrder(id),HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/all/order/get/{startDate}/{endDate}", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/order/get/{startDate}/{endDate}", method = RequestMethod.GET)
     public ResponseEntity<List<OrderListModel>> getOrders(@PathVariable String startDate, @PathVariable String endDate) throws ParseException {
         startDate = startDate + " 00:00:00.0";
         endDate = endDate + " 00:00:00.0";
