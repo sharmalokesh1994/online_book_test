@@ -17,5 +17,6 @@ public class OrderListModel {
     private long id;
     private List<OrderModel> orderList;
     private int totalPrice;
+    private Date orderDate;
 
 }

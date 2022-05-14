@@ -25,7 +25,7 @@ public class BookController {
     @RequestMapping(value = "/admin/book/add", method = RequestMethod.POST)
     public ResponseEntity<Void> addBookList(@Valid @RequestBody BookRequestModel bookRequestModel) {
         BookListModel bookListModel = objectMapper.convertValue(bookRequestModel,BookListModel.class);
-        //bookService.addBooks(bookListModel);
+        bookService.addBooks(bookListModel);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

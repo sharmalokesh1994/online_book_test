@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,6 +45,7 @@ public class OrderServiceImpl implements OrderService {
         orderEntity.setUser(userEntity);
 
         int totalPrice = 0;
+        int totalCount = 0;
 
         for(OrderModel orderModel : orderEntity.getOrderList()) {
             Optional<BookEntity> bookEntityOptional = bookRepository.findById((long)orderModel.getBookId());
@@ -54,11 +58,14 @@ public class OrderServiceImpl implements OrderService {
             if( bookEntity.getInventory()< orderModel.getQuantity()) {
                 throw new OutOfStockException(orderModel.getBookId() + " is out of stock ");
             }
-            totalPrice = totalPrice + bookEntity.getPrice();
+            totalPrice = totalPrice + orderModel.getQuantity() * bookEntity.getPrice();
+            totalCount = totalCount + orderModel.getQuantity();
             bookEntity.setInventory( bookEntity.getInventory() - orderModel.getQuantity() );
             bookRepository.save(bookEntity);
         }
         orderEntity.setTotalPrice(totalPrice);
+        orderEntity.setOrderDate(new Date());
+        orderEntity.setTotalCount(totalCount);
         orderRepository.save(orderEntity);
         orderListModel.setId(orderEntity.getId());
         orderListModel.setTotalPrice(totalPrice);
@@ -76,6 +83,19 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity orderEntity = optionalOrderEntity.get();
 
         return mapper.convertValue(orderEntity,OrderListModel.class);
+    }
+
+    @Override
+    public List<OrderListModel> getOrders(Date startDate, Date endDate) {
+
+        List<OrderEntity> orderEntities = orderRepository.getAllBetweenDates(startDate,endDate);
+        List<OrderListModel> orderListModels = new ArrayList<>();
+
+        for( OrderEntity orderEntity : orderEntities ) {
+            orderListModels.add(mapper.convertValue(orderEntity,OrderListModel.class));
+        }
+
+        return orderListModels;
     }
 
 

@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 @RestController
 public class OrderController {
@@ -28,8 +32,16 @@ public class OrderController {
     }
 
     @RequestMapping(value = "/customer/order/{id}", method = RequestMethod.GET)
-    public ResponseEntity<OrderListModel> makeOrder(@PathVariable long id) {
+    public ResponseEntity<OrderListModel> getOrder(@PathVariable long id) {
         return new ResponseEntity<>(orderService.getOrder(id),HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/all/order/get/{startDate}/{endDate}", method = RequestMethod.GET)
+    public ResponseEntity<List<OrderListModel>> getOrders(@PathVariable String startDate, @PathVariable String endDate) throws ParseException {
+        startDate = startDate + " 00:00:00.0";
+        endDate = endDate + " 00:00:00.0";
+        return new ResponseEntity<>(orderService.getOrders(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").parse(startDate),
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").parse(endDate)),HttpStatus.OK);
     }
 
 }

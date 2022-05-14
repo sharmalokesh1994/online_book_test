@@ -38,4 +38,7 @@ public class OrderEntity {
     @Temporal(TemporalType.DATE)
     private Date orderDate;
 
+    @Column
+    private int totalCount;
+
 }
