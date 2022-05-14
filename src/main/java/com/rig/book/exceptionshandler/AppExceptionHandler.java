@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,6 +28,13 @@ public class AppExceptionHandler {
         return new ErrorResponseModel(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
     }
 
+    //MethodArgumentNotValidException
+    @ExceptionHandler
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseModel handle(MethodArgumentNotValidException exception) {
+        return new ErrorResponseModel(HttpStatus.BAD_REQUEST.value(), exception.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+    }
 
     @ExceptionHandler
     @ResponseBody
